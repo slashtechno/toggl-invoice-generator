@@ -1,0 +1,12 @@
+toggl_api_key="<fill in>" # you can get this from Toggl profile settings
+billed_to = "<fill in with client name and address>"
+pay_to = "<fill in with your name and address>"
+workspace_id=123 # fill in with your workspace id (you can get this from the URL)
+
+[[projects]]
+name = "<fill in with project name>"
+project_id = 123 # fill in with project id
+hourly_rate = 123 # fill in with hourly rate
+
+
+# You can have as many projects as you want, just add a new [[projects]] section

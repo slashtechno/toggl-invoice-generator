@@ -7,6 +7,7 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 from typing import Optional
+import os
 
 class Project(BaseModel):
     # project_id: Optional[int] = None
@@ -33,8 +34,23 @@ class Settings(BaseSettings):
     billed_to: str
     pay_to: str
     payment_terms: str = "Payment details on file"
-    model_config = SettingsConfigDict(toml_file='config.toml')
     workspace_id: int
+
+    @staticmethod
+    def _get_config_path() -> str:
+        """Get config file path, prompting user if default doesn't exist."""
+        default_path = "./config.toml"
+        
+        # Check if default config exists
+        if os.path.exists(default_path):
+            return default_path
+        
+        # Prompt user for config file path
+        config_path = default_path
+        while not os.path.exists(config_path):
+            config_path = input(f"Config file not found at {config_path}. Enter the path to your config.toml file (it should follow the format of example.config.toml): ").strip()
+        return config_path
+    model_config = SettingsConfigDict(toml_file=_get_config_path())
 
     @classmethod
     def settings_customise_sources(
