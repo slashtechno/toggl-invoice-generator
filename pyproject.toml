@@ -1,0 +1,24 @@
+[project]
+name = "toggl-invoice-generator"
+version = "0.1.0"
+description = "Take a mapping of Toggl Track projects and manually inputted rates, download a report, and generate an invoice"
+readme = "README.md"
+authors = [
+    { name = "slashtechno", email = "77907286+slashtechno@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "loguru>=0.7.3",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "python-decouple>=3.8",
+    "reportlab>=4.0.0",
+]
+
+[project.scripts]
+toggl-invoice-generator = "toggl_invoice_generator.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
