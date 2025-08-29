@@ -1,0 +1,26 @@
+toggl_api_key="mock_api_key_for_testing"
+billed_to = "Mock Client Inc.\n123 Fake Street\nTest City, TC 12345"
+pay_to = "Mock Developer\n456 Developer Lane\nCode City, CC 67890"
+workspace_id=999999
+invoice_id=1001
+
+# Date range for invoice period (optional - leave empty to include all available data)
+# Format: YYYY-MM-DD (e.g., "2024-01-01")
+# Note: Both start_date and end_date are INCLUSIVE (will include the specified days)
+start_date = "2024-01-01" # Start date for invoice period (inclusive)
+end_date = "2024-01-31"   # End date for invoice period (inclusive)
+
+[[projects]]
+name = "Mock Web Development Project"
+project_id = 123456
+hourly_rate = 75.00
+
+[[projects]]
+name = "Mock API Integration"
+project_id = 789012
+hourly_rate = 85.00
+
+[[projects]]
+name = "Mock UI/UX Design"
+project_id = 345678
+hourly_rate = 95.00
