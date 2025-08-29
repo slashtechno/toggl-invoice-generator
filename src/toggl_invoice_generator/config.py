@@ -1,5 +1,5 @@
 # from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -8,6 +8,7 @@ from pydantic_settings import (
 )
 from typing import Optional
 import os
+from datetime import datetime
 
 class Project(BaseModel):
     # project_id: Optional[int] = None
@@ -35,6 +36,32 @@ class Settings(BaseSettings):
     pay_to: str
     payment_terms: str = "Payment details on file"
     workspace_id: int
+    invoice_id: int
+    # Date range configuration (optional - if not specified, will use all available data)
+    start_date: Optional[str] = None  # Start date for invoice period (inclusive)
+    end_date: Optional[str] = None    # End date for invoice period (inclusive)
+
+    @field_validator('start_date', 'end_date')
+    @classmethod
+    def validate_date_format(cls, v: Optional[str]) -> Optional[str]:
+        """Validate date format is YYYY-MM-DD"""
+        if v is not None:
+            try:
+                datetime.strptime(v, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError(f"Date must be in YYYY-MM-DD format, got: {v}")
+        return v
+
+    @field_validator('end_date')
+    @classmethod
+    def validate_date_range(cls, v: Optional[str], info) -> Optional[str]:
+        """Validate that end_date is after start_date when both are provided"""
+        if v is not None and info.data.get('start_date'):
+            start_date = datetime.strptime(info.data['start_date'], "%Y-%m-%d")
+            end_date = datetime.strptime(v, "%Y-%m-%d")
+            if end_date < start_date:
+                raise ValueError("end_date must be after start_date")
+        return v
 
     @staticmethod
     def _get_config_path() -> str:

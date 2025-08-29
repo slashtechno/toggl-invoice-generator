@@ -79,6 +79,17 @@ class InvoiceGenerator(BaseModel):
         story.append(Paragraph("INVOICE", title_style))
         story.append(Spacer(1, 20))
         
+        # Invoice ID
+        invoice_id_style = ParagraphStyle(
+            'InvoiceID',
+            parent=styles['Normal'],
+            fontSize=14,
+            spaceAfter=20,
+            alignment=1  # Center alignment
+        )
+        story.append(Paragraph(f"Invoice #: {self.settings.invoice_id}", invoice_id_style))
+        story.append(Spacer(1, 20))
+        
         # Invoice details
         invoice_date = datetime.now()
         due_date = invoice_date + timedelta(weeks=2)
@@ -88,6 +99,15 @@ class InvoiceGenerator(BaseModel):
             ['Due Date:', due_date.strftime("%B %d, %Y")],
             ['Payment Terms:', self.settings.payment_terms]
         ]
+        
+        # Add service period if dates are configured
+        if self.settings.start_date and self.settings.end_date:
+            # Convert YYYY-MM-DD to MM-DD-YYYY format
+            start_date_obj = datetime.strptime(self.settings.start_date, "%Y-%m-%d")
+            end_date_obj = datetime.strptime(self.settings.end_date, "%Y-%m-%d")
+            start_formatted = start_date_obj.strftime("%m-%d-%Y")
+            end_formatted = end_date_obj.strftime("%m-%d-%Y")
+            details_data.append(['Service Period:', f"{start_formatted} to {end_formatted}"])
         
         details_table = Table(details_data, colWidths=[2*inch, 4*inch])
         details_table.setStyle(TableStyle([
@@ -178,6 +198,17 @@ class InvoiceGenerator(BaseModel):
         story.append(Paragraph("INVOICE", title_style))
         story.append(Spacer(1, 20))
         
+        # Invoice ID
+        invoice_id_style = ParagraphStyle(
+            'InvoiceID',
+            parent=styles['Normal'],
+            fontSize=14,
+            spaceAfter=20,
+            alignment=1  # Center alignment
+        )
+        story.append(Paragraph(f"Invoice #: {self.settings.invoice_id}", invoice_id_style))
+        story.append(Spacer(1, 20))
+        
         # Invoice details
         invoice_date = datetime.now()
         due_date = invoice_date + timedelta(weeks=2)
@@ -187,6 +218,15 @@ class InvoiceGenerator(BaseModel):
             ['Due Date:', due_date.strftime("%B %d, %Y")],
             ['Payment Terms:', self.settings.payment_terms]
         ]
+        
+        # Add service period if dates are configured
+        if self.settings.start_date and self.settings.end_date:
+            # Convert YYYY-MM-DD to MM-DD-YYYY format
+            start_date_obj = datetime.strptime(self.settings.start_date, "%Y-%m-%d")
+            end_date_obj = datetime.strptime(self.settings.end_date, "%Y-%m-%d")
+            start_formatted = start_date_obj.strftime("%m-%d-%Y")
+            end_formatted = end_date_obj.strftime("%m-%d-%Y")
+            details_data.append(['Service Period:', f"{start_formatted} to {end_formatted}"])
         
         details_table = Table(details_data, colWidths=[2*inch, 4*inch])
         details_table.setStyle(TableStyle([
@@ -250,7 +290,8 @@ def create_invoice(
     filename: str,
     billed_to: Optional[str] = None,
     pay_to: Optional[str] = None,
-    payment_terms: Optional[str] = None
+    payment_terms: Optional[str] = None,
+    invoice_id: Optional[int] = None
 ) -> str:
     """
     Convenience function to create a PDF invoice from time entries
@@ -261,12 +302,13 @@ def create_invoice(
         billed_to: Override billing address from config
         pay_to: Override payment address from config
         payment_terms: Override payment terms from config
+        invoice_id: Override invoice ID from config
     
     Returns:
         Filename of the generated PDF
     """
     # Create temporary settings override if custom values provided
-    if any([billed_to, pay_to, payment_terms]):
+    if any([billed_to, pay_to, payment_terms, invoice_id]):
         settings = Settings()
         if billed_to is not None:
             settings.billed_to = billed_to
@@ -274,6 +316,8 @@ def create_invoice(
             settings.pay_to = pay_to
         if payment_terms is not None:
             settings.payment_terms = payment_terms
+        if invoice_id is not None:
+            settings.invoice_id = invoice_id
         generator = InvoiceGenerator(settings=settings)
     else:
         generator = InvoiceGenerator()
@@ -286,7 +330,8 @@ def create_invoice_from_summaries(
     filename: str,
     billed_to: Optional[str] = None,
     pay_to: Optional[str] = None,
-    payment_terms: Optional[str] = None
+    payment_terms: Optional[str] = None,
+    invoice_id: Optional[int] = None
 ) -> str:
     """
     Convenience function to create a PDF invoice from project summaries
@@ -297,12 +342,13 @@ def create_invoice_from_summaries(
         billed_to: Override billing address from config
         pay_to: Override payment address from config
         payment_terms: Override payment terms from config
+        invoice_id: Override invoice ID from config
     
     Returns:
         Filename of the generated PDF
     """
     # Create temporary settings override if custom values provided
-    if any([billed_to, pay_to, payment_terms]):
+    if any([billed_to, pay_to, payment_terms, invoice_id]):
         settings = Settings()
         if billed_to is not None:
             settings.billed_to = billed_to
@@ -310,6 +356,8 @@ def create_invoice_from_summaries(
             settings.pay_to = pay_to
         if payment_terms is not None:
             settings.payment_terms = payment_terms
+        if invoice_id is not None:
+            settings.invoice_id = invoice_id
         generator = InvoiceGenerator(settings=settings)
     else:
         generator = InvoiceGenerator()

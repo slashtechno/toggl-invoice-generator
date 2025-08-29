@@ -2,6 +2,13 @@ toggl_api_key="<fill in>" # you can get this from Toggl profile settings
 billed_to = "<fill in with client name and address>"
 pay_to = "<fill in with your name and address>"
 workspace_id=123 # fill in with your workspace id (you can get this from the URL)
+invoice_id=1001 # fill in with your invoice number
+
+# Date range for invoice period (optional - leave empty to include all available data)
+# Format: YYYY-MM-DD (e.g., "2024-01-01")
+# Note: Both start_date and end_date are INCLUSIVE (will include the specified days)
+start_date = "2024-01-01" # Start date for invoice period (inclusive)
+end_date = "2024-01-31"   # End date for invoice period (inclusive)
 
 [[projects]]
 name = "<fill in with project name>"
