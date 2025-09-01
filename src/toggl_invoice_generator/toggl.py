@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 import httpx
 from pydantic import computed_field
@@ -43,19 +43,37 @@ class TogglClient:
             # Use tomorrow's date to ensure we include all of today's entries (if, for whatever reason, projects from the next day show up, remove them later)
             end_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         
-        response = self.client.get("api/v9/me/time_entries", params={"start_date": start_date, "end_date": end_date, "meta": True})
+        # Add buffer to handle timezone issues and entries that span dates
+        api_start_date = start_date
+        api_end_date = end_date
+        
+        if start_date is not None:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+            api_start_date = (start_date_obj - timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        if end_date is not None:
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+            api_end_date = (end_date_obj + timedelta(days=2)).strftime("%Y-%m-%d")
+        
+        response = self.client.get("api/v9/me/time_entries", params={"start_date": api_start_date, "end_date": api_end_date, "meta": True})
         time_entries = [TimeEntry.model_validate(entry) for entry in response.json()]
-        # json.dump(response.json(), open("cached.json", "w"))
-
-        # For now, load from cached.json since the free Toggl API has a really low rate limit
-        # with open("cached.json", "r") as f:
-            # time_entries = json.load(f)
-        # time_entries = [TimeEntry.model_validate(entry) for entry in time_entries]
 
 
-        # Remove any time entries that are from the next day
-        time_entries = [entry for entry in time_entries if entry.start.date() <= datetime.now().date()]
-        time_entries = [entry for entry in time_entries if entry.stop.date() <= datetime.now().date()]
+        # Filter entries based on the original date range to handle timezone issues
+        if start_date is not None:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").replace(hour=0, minute=0, second=0, tzinfo=timezone.utc)
+            time_entries = [entry for entry in time_entries if entry.start >= start_date_obj]
+        
+        if end_date is not None:
+            # Include entries that start on or before the end_date, plus entries that start on the next day
+            # This handles timezone edge cases where work done on end_date appears as next day in UTC
+            next_day_obj = (datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)).replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
+            time_entries = [entry for entry in time_entries if entry.start <= next_day_obj]
+        
+        # If no explicit dates provided, use default filtering
+        if start_date is None and end_date is None:
+            time_entries = [entry for entry in time_entries if entry.start.date() <= datetime.now().date()]
+            time_entries = [entry for entry in time_entries if entry.stop.date() <= datetime.now().date()]
 
         return time_entries
 
