@@ -14,7 +14,7 @@ Here's what a generated invoice looks like:
 
 This project is packaged with [uv](https://docs.astral.sh/uv/), so the easiest way to run it is to install uv and run the following command:
 ```bash
-uvx --from git+https://github.com/slashtechno/toggl-invoice-generator toggl-invoice-generator
+uvx --from toggl-invoice-gen toggl-invoice-generator
 ```
 
 ## Configuration
