@@ -1,6 +1,6 @@
 [project]
 name = "toggl-invoice-gen"
-version = "0.1.2"
+version = "0.1.3"
 description = "Take a mapping of Toggl Track projects and manually inputted rates, download a report, and generate an invoice"
 readme = "README.md"
 authors = [

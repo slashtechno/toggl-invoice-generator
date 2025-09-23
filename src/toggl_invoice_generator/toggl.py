@@ -56,6 +56,7 @@ class TogglClient:
             api_end_date = (end_date_obj + timedelta(days=2)).strftime("%Y-%m-%d")
         
         response = self.client.get("api/v9/me/time_entries", params={"start_date": api_start_date, "end_date": api_end_date, "meta": True})
+        print(f"DEBUG: Response: {json.dumps(response.json(), indent=2) }") # format the json nicely
         time_entries = [TimeEntry.model_validate(entry) for entry in response.json()]
 
 
